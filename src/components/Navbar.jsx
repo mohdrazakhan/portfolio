@@ -8,7 +8,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-white/60 backdrop-blur-md dark:bg-zinc-900/60 dark:border-zinc-800">
+    <header className="sticky top-0 z-20 border-b bg-white/60 backdrop-blur-md dark:bg-zinc-900/60 dark:border-zinc-800">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         <a href="#home" className="font-semibold text-lg">
           Raza.dev

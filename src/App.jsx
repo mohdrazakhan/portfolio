@@ -7,6 +7,7 @@ import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import { Analytics } from '@vercel/analytics/react';
+import DottedBackground from "./components/DottedBackground";
 
 
 export default function App() {
@@ -14,9 +15,19 @@ export default function App() {
 
   return (
   <>
-      <div className="min-h-screen bg-gradient-to-b from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-800 text-zinc-900 dark:text-zinc-100">
-        <Navbar />
-        <main>
+      <DottedBackground
+        spacing={56}
+        dotRadius={3}
+        dotColor="99,102,241"
+        opacity={0.12}
+        baseDarkness={0.9}
+        spotlightRadius={820}
+        spotlightStrength={0.35}
+        spotlightColor="99,102,241"
+      />
+  <div className="relative min-h-screen bg-gradient-to-b from-black/40 to-black/10 dark:from-black/70 dark:to-black/30 text-zinc-900 dark:text-zinc-100">
+  <Navbar />
+  <main className="relative z-10">
           <Hero />
           <Projects />
           <About />
@@ -24,7 +35,7 @@ export default function App() {
       {/* Analytics is safe in client React apps via @vercel/analytics/react */}
       <Analytics />
         </main>
-        <Footer />
+  <Footer />
       </div>
     </>
   );
