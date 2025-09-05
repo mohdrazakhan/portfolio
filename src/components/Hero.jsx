@@ -41,7 +41,7 @@ export default function Hero() {
         <div className="flex justify-center md:justify-end items-center">
             <div className="relative flex items-center justify-center rounded-full p-1 bg-gradient-to-br from-indigo-600/20 to-purple-600/20">
             <img
-                src="/src/assets/images/profile.jpg"
+                src="/images/profile.jpg"
                 alt="Mohd Raza Khan"
                 className="h-48 w-48 sm:h-64 sm:w-64 md:h-80 md:w-80 lg:h-96 lg:w-96 rounded-full object-cover 
                 shadow-lg md:shadow-xl border-4 border-white dark:border-zinc-800

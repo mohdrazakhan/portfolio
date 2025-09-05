@@ -7,7 +7,7 @@ const projects = [
     description:
       "A full-featured expense tracker with user auth, realtime updates and CSV export. Built with React, Tailwind and a small Node server for webhooks.",
     tags: ["React", "Tailwind", "Firebase"],
-    image: "/src/assets/images/roommate.png", 
+    image: "/images/roommate.png", 
     demo: "#",
     repo: "https://github.com/mohdrazakhan/oneRoom---Roommate-management-application.git",
   },
@@ -18,7 +18,7 @@ const projects = [
     description:
       "Experiment showing route optimization and visual ETA improvements using D3 + Mapbox. Great for logistics demos and prototypes.",
     tags: ["D3", "Mapbox", "Prototype"],
-    image: "/src/assets/images/optirider.png",
+    image: "/images/optirider.png",
     demo: "#",
     repo: "#",
   },
@@ -29,7 +29,7 @@ const projects = [
     description:
       "An opinionated portfolio starter using Vite + React + Tailwind. Focused on accessibility and performance with a small, clean codebase.",
     tags: ["React", "Vite", "Tailwind"],
-    image: "/src/assets/images/portfolio-starter.png",
+    image: "/images/portfolio-starter.png",
     demo: "#",
     repo: "#",
   },
