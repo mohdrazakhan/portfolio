@@ -106,7 +106,7 @@ Alternatively, deploy to Netlify or Vercel — both work great with Vite project
 
 ## Screenshots
 
-<img alt="Portfolio preview" src="src/assets/images/profile.jpg" width="640" />
+<img alt="Portfolio preview" src="src/assets/images/portfolio-starter.png" width="640" />
 
 ## License
 This project is licensed under the ISC license.
