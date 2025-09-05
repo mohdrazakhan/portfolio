@@ -55,7 +55,7 @@ export default function Contact() {
 
         <div className="grid md:grid-cols-2 gap-10">
           <div className="space-y-6">
-            <p className="text-lg text-zinc-600 dark:text-zinc-300">
+              <p className="text-lg text-zinc-700 dark:text-zinc-300">
               I’d love to hear about new opportunities, collaborations, or any interesting project you’re working on.
             </p>
 

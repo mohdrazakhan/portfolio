@@ -35,7 +35,8 @@ export default function DottedBackground({
     mouseX: 0,
     mouseY: 0,
     spotX: 0,
-    spotY: 0,
+  spotY: 0,
+  isDark: false,
     dots: [],
     raf: null,
     devicePixelRatio: 1,
@@ -46,6 +47,12 @@ export default function DottedBackground({
     const ctx = canvas.getContext("2d");
     const s = stateRef.current;
     s.devicePixelRatio = window.devicePixelRatio || 1;
+
+    // set theme from <html class="dark">
+    const setTheme = () => {
+      s.isDark = document.documentElement.classList.contains("dark");
+    };
+    setTheme();
 
     function resize() {
       const rect = canvas.getBoundingClientRect();
@@ -102,66 +109,106 @@ export default function DottedBackground({
       // clear
       ctx.clearRect(0, 0, s.width, s.height);
 
-      // 1) Base dark gradient background (subtle purple tint toward top-right)
-      const base = ctx.createRadialGradient(
-        s.width * 0.85,
-        s.height * 0.1,
-        Math.max(s.width, s.height) * 0.05,
-        s.width * 1.1,
-        s.height * 0.2,
-        Math.max(s.width, s.height) * 1.2
-      );
-      base.addColorStop(0, `rgba(12,12,20, ${baseDarkness})`);
-      base.addColorStop(0.6, `rgba(10,9,24, ${Math.min(1, baseDarkness + 0.02)})`);
-      base.addColorStop(1, `rgba(6,6,12, ${Math.min(1, baseDarkness + 0.04)})`);
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = base;
-      ctx.fillRect(0, 0, s.width, s.height);
+      if (s.isDark) {
+        // DARK MODE: deep base + soft ambiance + bright spotlight
+        const base = ctx.createRadialGradient(
+          s.width * 0.85,
+          s.height * 0.1,
+          Math.max(s.width, s.height) * 0.05,
+          s.width * 1.1,
+          s.height * 0.2,
+          Math.max(s.width, s.height) * 1.2
+        );
+        base.addColorStop(0, `rgba(12,12,20, ${baseDarkness})`);
+        base.addColorStop(0.6, `rgba(10,9,24, ${Math.min(1, baseDarkness + 0.02)})`);
+        base.addColorStop(1, `rgba(6,6,12, ${Math.min(1, baseDarkness + 0.04)})`);
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = base;
+        ctx.fillRect(0, 0, s.width, s.height);
 
-      // 2) Soft central ambiance (static-ish, gently follows parallax)
-      const ambiance = ctx.createRadialGradient(
-        s.width * 0.5 - s.offsetX * 6,
-        s.height * 0.6 - s.offsetY * 6,
-        0,
-        s.width * 0.5,
-        s.height * 0.6,
-        Math.max(s.width, s.height) * 0.9
-      );
-      ambiance.addColorStop(0, `rgba(${dotColor}, ${opacity * 0.9})`);
-      ambiance.addColorStop(0.25, `rgba(${dotColor}, ${opacity * 0.35})`);
-      ambiance.addColorStop(1, `rgba(0,0,0,0)`);
-      ctx.globalCompositeOperation = "screen"; // additive but softer
-      ctx.fillStyle = ambiance;
-      ctx.fillRect(0, 0, s.width, s.height);
+        const ambiance = ctx.createRadialGradient(
+          s.width * 0.5 - s.offsetX * 6,
+          s.height * 0.6 - s.offsetY * 6,
+          0,
+          s.width * 0.5,
+          s.height * 0.6,
+          Math.max(s.width, s.height) * 0.9
+        );
+        ambiance.addColorStop(0, `rgba(${dotColor}, ${opacity * 0.9})`);
+        ambiance.addColorStop(0.25, `rgba(${dotColor}, ${opacity * 0.35})`);
+        ambiance.addColorStop(1, `rgba(0,0,0,0)`);
+        ctx.globalCompositeOperation = "screen";
+        ctx.fillStyle = ambiance;
+        ctx.fillRect(0, 0, s.width, s.height);
 
-      // 3) Dots layer
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = `rgba(${dotColor}, ${opacity})`;
-      s.dots.forEach((d, i) => {
-        const px = d.x + s.offsetX * (0.6 + (i % 5) * 0.02); // slight parallax variance
-        const py = d.y + s.offsetY * (0.6 + (i % 7) * 0.015);
-        const rr = d.r;
-        ctx.beginPath();
-        ctx.arc(px, py, rr, 0, Math.PI * 2);
-        ctx.fill();
-      });
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = `rgba(${dotColor}, ${opacity})`;
+        s.dots.forEach((d, i) => {
+          const px = d.x + s.offsetX * (0.6 + (i % 5) * 0.02);
+          const py = d.y + s.offsetY * (0.6 + (i % 7) * 0.015);
+          ctx.beginPath();
+          ctx.arc(px, py, d.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
 
-      // 4) Mouse-following spotlight (brightens under cursor)
-      const cx = s.spotX || s.width * 0.5;
-      const cy = s.spotY || s.height * 0.6;
-      const r = Math.max(180, spotlightRadius);
-      const spot = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-      spot.addColorStop(0, `rgba(${spotlightColor}, ${Math.min(1, spotlightStrength)})`);
-      spot.addColorStop(0.35, `rgba(${spotlightColor}, ${Math.max(0, spotlightStrength * 0.35)})`);
-      spot.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.globalCompositeOperation = "screen"; // brighten
-      ctx.fillStyle = spot;
-      ctx.fillRect(0, 0, s.width, s.height);
+        const cx = s.spotX || s.width * 0.5;
+        const cy = s.spotY || s.height * 0.6;
+        const r = Math.max(220, spotlightRadius);
+        const spot = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        spot.addColorStop(0, `rgba(${spotlightColor}, ${Math.min(1, spotlightStrength)})`);
+        spot.addColorStop(0.35, `rgba(${spotlightColor}, ${Math.max(0, spotlightStrength * 0.35)})`);
+        spot.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.globalCompositeOperation = "screen";
+        ctx.fillStyle = spot;
+        ctx.fillRect(0, 0, s.width, s.height);
+      } else {
+        // LIGHT MODE: light base + darker dots + dark vignette following mouse
+        const base = ctx.createRadialGradient(
+          s.width * 0.9,
+          s.height * 0.15,
+          Math.max(s.width, s.height) * 0.05,
+          s.width * 1.2,
+          s.height * 0.2,
+          Math.max(s.width, s.height) * 1.2
+        );
+        base.addColorStop(0, "rgba(248,249,252, 0.98)");
+        base.addColorStop(0.6, "rgba(245,246,250, 0.98)");
+        base.addColorStop(1, "rgba(241,242,244, 0.98)");
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = base;
+        ctx.fillRect(0, 0, s.width, s.height);
+
+        // dots a bit darker so they show on light base
+        ctx.fillStyle = `rgba(63,63,70, ${Math.min(0.22, opacity * 1.8)})`;
+        s.dots.forEach((d, i) => {
+          const px = d.x + s.offsetX * (0.6 + (i % 5) * 0.02);
+          const py = d.y + s.offsetY * (0.6 + (i % 7) * 0.015);
+          ctx.beginPath();
+          ctx.arc(px, py, d.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // dark spotlight (multiply) looks better on light background
+        const cx = s.spotX || s.width * 0.5;
+        const cy = s.spotY || s.height * 0.6;
+        const r = Math.max(280, spotlightRadius * 1.1);
+        const spot = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        spot.addColorStop(0, "rgba(17,24,39, 0.22)");
+        spot.addColorStop(0.45, "rgba(17,24,39, 0.12)");
+        spot.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.globalCompositeOperation = "multiply";
+        ctx.fillStyle = spot;
+        ctx.fillRect(0, 0, s.width, s.height);
+      }
 
       s.raf = requestAnimationFrame(animate);
     }
 
-    // initial setup
+  // observe theme changes on <html>
+  const observer = new MutationObserver(setTheme);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+  // initial setup
     resize();
     animate();
 
@@ -174,16 +221,17 @@ export default function DottedBackground({
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("touchmove", onTouch);
       window.removeEventListener("resize", resize);
-      if (s.raf) cancelAnimationFrame(s.raf);
+    if (s.raf) cancelAnimationFrame(s.raf);
+    observer.disconnect();
     };
-  }, [spacing, dotRadius, dotColor, opacity]);
+  }, [spacing, dotRadius, dotColor, opacity, baseDarkness, spotlightRadius, spotlightStrength, spotlightColor]);
 
   // full-screen positioned canvas behind content
   return (
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-10"
+  className="pointer-events-none fixed inset-0 z-0"
       style={{ width: "100%", height: "100%", display: "block" }}
     />
   );

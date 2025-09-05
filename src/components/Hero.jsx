@@ -7,31 +7,31 @@ export default function Hero() {
         <div className="mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center py-12 sm:py-0">    
         {/* Left: text */}
         <div className="flex flex-col items-center md:items-start space-y-6 md:space-y-8">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight leading-tight">
-            Hi, I’m 
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
-                 Mohd Raza Khan
-            </span>
-            <span className="ml-2 text-lg sm:text-xl md:text-2xl text-zinc-300/80 font-bold">
-                — Developer
-            </span>
-            </h1>
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight leading-tight text-zinc-900 dark:text-zinc-100">
+                            Hi, I’m 
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-purple-500">
+                                Mohd Raza Khan
+                            </span>
+                            <span className="ml-2 text-lg sm:text-xl md:text-2xl text-zinc-700 dark:text-zinc-300/80 font-bold">
+                                — Developer
+                            </span>
+                        </h1>
 
-          <p className="text-zinc-300/90 leading-relaxed max-w-2xl text-base sm:text-lg">
+                    <p className="text-zinc-700 dark:text-zinc-300/90 leading-relaxed max-w-2xl text-base sm:text-lg">
             I build fast, accessible, responsive web & mobile experiences using React, Tailwind and Flutter.
             I focus on clean UI, performance and practical projects.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 mt-6">
-    <a href="#projects" className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-zinc-900/80 hover:bg-zinc-900 text-sm sm:text-base font-medium shadow-md transition transform hover:-translate-y-0.5">
+    <a href="#projects" className="inline-flex items-center justify-center px-5 py-3 rounded-2xl text-sm sm:text-base font-medium shadow-md transition transform hover:-translate-y-0.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 dark:bg-none dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800">
         View Projects
     </a>
 
-    <a href="#contact" className="inline-flex items-center justify-center px-5 py-3 rounded-2xl border border-zinc-700 text-sm sm:text-base font-medium hover:bg-zinc-900/60 transition">
+    <a href="#contact" className="inline-flex items-center justify-center px-5 py-3 rounded-2xl border text-sm sm:text-base font-medium transition border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900/60">
         Contact Me
     </a>
 
-    <a href="/resume.pdf" className="inline-flex items-center justify-center px-4 py-3 rounded-full border-2 border-zinc-700 text-sm sm:text-base font-medium hover:scale-105 transition">
+    <a href="/resume.pdf" className="inline-flex items-center justify-center px-4 py-3 rounded-full border-2 text-sm sm:text-base font-medium hover:scale-105 transition border-zinc-300 text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200">
         Resume
     </a>
     </div>
@@ -39,7 +39,7 @@ export default function Hero() {
 
         {/* Right: profile photo */}
         <div className="flex justify-center md:justify-end items-center">
-            <div className="relative flex items-center justify-center rounded-full p-1 bg-gradient-to-br from-indigo-600/20 to-purple-600/20">
+            <div className="relative flex items-center justify-center rounded-full p-1 bg-gradient-to-br from-indigo-500/30 to-violet-500/30 dark:from-indigo-600/20 dark:to-purple-600/20">
             <img
                 src="/images/profile.jpg"
                 alt="Mohd Raza Khan"

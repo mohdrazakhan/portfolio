@@ -25,7 +25,7 @@ export default function App() {
         spotlightStrength={0.35}
         spotlightColor="99,102,241"
       />
-  <div className="relative min-h-screen bg-gradient-to-b from-black/40 to-black/10 dark:from-black/70 dark:to-black/30 text-zinc-900 dark:text-zinc-100">
+  <div className="relative min-h-screen bg-gradient-to-b from-white/0 to-black/5 dark:from-black/70 dark:to-black/30 text-zinc-900 dark:text-zinc-100">
   <Navbar />
   <main className="relative z-10">
           <Hero />
