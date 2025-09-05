@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* small defaults so layout is visible */
+html, body, #root { height: 100%; }
+
+
+
