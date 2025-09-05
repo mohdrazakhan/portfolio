@@ -10,7 +10,7 @@ export default function Hero() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight leading-tight">
             Hi, I’m 
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
-                Mohd Raza Khan
+                 Mohd Raza Khan
             </span>
             <span className="ml-2 text-lg sm:text-xl md:text-2xl text-zinc-300/80 font-medium">
                 — Developer

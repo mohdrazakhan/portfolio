@@ -7,7 +7,7 @@ A fast, modern, and responsive developer portfolio built with React, Vite, Tailw
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Framer Motion](https://img.shields.io/badge/Framer%20Motion-12-0055FF?logo=framer&logoColor=white)](https://www.framer.com/motion/)
 
-> Demo link (optional): https://github.com/mohdrazakhan/portfolio
+>Project Link: https://github.com/mohdrazakhan/portfolio
 
 ---
 
