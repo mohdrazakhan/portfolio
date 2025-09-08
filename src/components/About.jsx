@@ -11,35 +11,32 @@ import React from "react";
  */
 
 const skills = [
-  { name: "React", level: "Advanced" },
-  { name: "Tailwind CSS", level: "Advanced" },
-  { name: "JavaScript (ES6+)", level: "Advanced" },
-  { name: "TypeScript", level: "Intermediate" },
+  { name: "Python", level: "Basic" },
+  { name: "JAVA", level: "Advanced" },
+  { name: "IOT devices", level: "Advanced" },
+  { name: "DSA", level: "Intermediate" },
   { name: "HTML & CSS", level: "Advanced" },
   { name: "Node.js", level: "Intermediate" },
   { name: "Flutter", level: "Intermediate" },
   { name: "Git / CI", level: "Intermediate" },
+  { name: "C", level: "Intermediate" },
+  { name: "JavaScript", level: "Intermediate" },
 ];
 
 const experience = [
   {
-    year: "2024",
-    title: "Frontend Developer Intern",
-    org: "Company A",
-    desc: "Worked on component library and performance improvements using React and Tailwind.",
+    year: "2025",
+    title: "🎨 Graphic Designer ",
+    org: "Kiya Learning",
+    desc: "Designed promotional graphics for educational content, collaborating with educators and marketing teams.",
   },
   {
     year: "2023",
-    title: "Product UI",
-    org: "Project X",
-    desc: "Built and shipped interaction patterns and small design system tokens.",
+    title: "💻 IT Intern",
+    org: "S.H. Solutions",
+    desc: "Developed 10+ responsive e-commerce pages, Improved site speed by 35% and boosted traffic with SEO.",
   },
-  {
-    year: "2022",
-    title: "Mobile Explorations",
-    org: "Personal",
-    desc: "Prototyped mobile apps using Flutter focusing on UX & performance.",
-  },
+
 ];
 
 function SkillPill({ name }) {
@@ -59,15 +56,19 @@ export default function About() {
           <div className="order-2 md:order-1">
             <h2 className="text-3xl md:text-4xl font-bold text-zinc-100 mb-3">About me</h2>
             <p className="text-zinc-300 text-base md:text-lg leading-relaxed mb-6 max-w-xl">
-              I’m a frontend developer focused on building fast, accessible, and
-              delightful experiences on the web. I enjoy working on practical
-              projects, improving performance, and turning design ideas into
-              reusable components.
+              I am a final-year B.Tech student in Computer Science and Engineering at Sharda University, 
+              with a strong academic record (GPA: 8.34/10) and hands-on project experience.
+              I love experimenting with full-stack development, IoT devices, and cloud-based solutions, and 
+              I enjoy combining my technical knowledge with design creativity. Alongside coding, 
+              I’ve also worked as a Graphic Designer, creating engaging visuals for startups and tech communities.
             </p>
 
             <p className="text-zinc-300 text-base leading-relaxed mb-6 max-w-xl">
-              I love learning new approaches to UI and UX — recently exploring
-              animation, accessibility, and better developer ergonomics.
+              🌟 Key traits that define me:
+                  Problem-solver who enjoys challenges.
+                  Creative thinker with an eye for design.
+                  Team player with leadership and collaboration skills.
+                  Driven by curiosity and social impact through technology.
             </p>
 
             <div className="flex flex-wrap gap-3 mb-6" aria-hidden>
@@ -98,7 +99,7 @@ export default function About() {
           {/* Right column: skills + timeline */}
           <div className="order-1 md:order-2">
             <div className="bg-zinc-900/30 rounded-2xl p-6">
-              <h3 className="text-zinc-200 font-semibold mb-4">Core skills</h3>
+              <h3 className="text-zinc-200 font-semibold mb-4">Technical skills</h3>
               <ul className="grid grid-cols-2 gap-3 mb-6">
                 {skills.map((s) => (
                   <li key={s.name} className="flex items-center gap-3">

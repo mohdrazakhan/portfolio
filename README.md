@@ -7,8 +7,7 @@ A fast, modern, and responsive developer portfolio built with React, Vite, Tailw
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Framer Motion](https://img.shields.io/badge/Framer%20Motion-12-0055FF?logo=framer&logoColor=white)](https://www.framer.com/motion/)
 
->Project Link: https://github.com/mohdrazakhan/portfolio
-
+>Project Link: www.mohdrazakhan.me
 ---
 
 ## Features
@@ -106,7 +105,12 @@ Alternatively, deploy to Netlify or Vercel — both work great with Vite project
 
 ## Screenshots
 
-<img alt="Portfolio preview" src="src/assets/images/portfolio-starter.png" width="640" />
+<img alt="Portfolio preview 1" src="/public/images/preview/1.png" width="640" />
+<img alt="Portfolio preview 2" src="/public/images/preview/2.png" width="640" />
+<img alt="Portfolio preview 3" src="/public/images/preview/3.png" width="640" />
+<img alt="Portfolio preview 4" src="/public/images/preview/4.png" width="640" />
+<img alt="Portfolio preview 5" src="/public/images/preview/5.png" width="640" />
+
 
 ## License
 This project is licensed under the ISC license.
@@ -114,3 +118,4 @@ This project is licensed under the ISC license.
 ---
 
 Made with ❤️ using React, Vite, Tailwind CSS, and Framer Motion.
+❤️ Mohd Raza Khan ❤️

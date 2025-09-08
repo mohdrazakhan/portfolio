@@ -8,7 +8,7 @@ export default function Hero() {
         {/* Left: text */}
         <div className="flex flex-col items-center md:items-start space-y-6 md:space-y-8">
                         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight leading-tight text-zinc-900 dark:text-zinc-100">
-                            Hi, I’m 
+                            Hi, I’m  
                             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-purple-500">
                                 Mohd Raza Khan
                             </span>
@@ -18,8 +18,11 @@ export default function Hero() {
                         </h1>
 
                     <p className="text-zinc-700 dark:text-zinc-300/90 leading-relaxed max-w-2xl text-base sm:text-lg">
-            I build fast, accessible, responsive web & mobile experiences using React, Tailwind and Flutter.
-            I focus on clean UI, performance and practical projects.
+            A passionate Software Developer, Full Stack Enthusiast and IoT Innovator. 
+            I specialize in building impactful web, mobile, and IoT solutions that blend creativity with technology.
+          </p>
+          <p>
+            💡 “Technology should solve real problems and create value for people.”
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 mt-6">
