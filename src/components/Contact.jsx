@@ -1,6 +1,7 @@
 // src/components/Contact.jsx
 import React, { useState } from "react";
 import { Mail as MailIcon, Github as GithubIcon, Linkedin as LinkedinIcon } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa6";
 
 const formAction = "https://formspree.io/f/mwpnwjlr"; 
 
@@ -87,6 +88,16 @@ export default function Contact() {
                 <LinkedinIcon className="w-5 h-5 text-indigo-500" />
                 <span className="text-zinc-800 dark:text-zinc-200">linkedin.com/in/mohdrazakhan32</span>
               </a>
+              <a
+                href="https://wa.me/qr/UTDKUQWDBSH2E1"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-zinc-800 shadow hover:shadow-md transition"
+              >
+                <FaWhatsapp className="w-5 h-5 text-indigo-500" />
+                <span className="text-zinc-800 dark:text-zinc-200">+91 7906944241</span>
+              </a>
+
             </div>
           </div>
 
