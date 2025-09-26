@@ -3,8 +3,6 @@ import React from "react";
 import { ArrowUp, Github, Linkedin } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 
-
-
 export default function Footer() {
   const year = new Date().getFullYear();
 
@@ -13,38 +11,83 @@ export default function Footer() {
   }
 
   return (
-  <footer className="mt-24 bg-gradient-to-t from-transparent to-transparent">
-      <div className="max-w-7xl mx-auto px-2 py-6">
-        {/* card-like container */}
-    <div className="w-full rounded-2xl backdrop-blur-sm border p-10 md:p-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-6 bg-white/70 border-zinc-200 dark:bg-zinc-900/40 dark:border-zinc-800/50">
-          {/* left: brand + tagline */}
-          <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+    <footer className="mt-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
+        {/* Card-like container */}
+        <div className="w-full rounded-2xl backdrop-blur-sm border p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start justify-between gap-6 bg-white/70 border-zinc-200 dark:bg-zinc-900/40 dark:border-zinc-800/50">
+          {/* Left: Brand + small tagline (keeps visible on all sizes) */}
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
             <a
               href="https://mohdrazakhan.me"
-              className="text-xl md:text-2xl font-semibold text-zinc-100 hover:text-white transition"
+              className="text-lg md:text-2xl font-semibold text-zinc-400 dark:text-zinc-90 hover:text-white transition"
               target="_blank"
               rel="noreferrer"
             >
               Mohd Raza Khan
             </a>
 
+            {/* small tagline only visible on md+ to save space on mobile */}
             <div className="hidden md:flex flex-col text-sm text-zinc-600 dark:text-zinc-400">
-              <span>Developer · Java · C · Pyhon · Web </span>
-              <span className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">Building fast, accessible web experiences.</span>
+              <span>Developer · Java · C · Python · Web</span>
+              <span className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
+                Building fast, accessible web experiences.
+              </span>
             </div>
           </div>
 
-          {/* center: nav links (responsive) */}
-          <nav className="flex flex-col sm:flex-row items-center gap-3 md:gap-6">
-            <a href="#home" className="text-sm text-zinc-700 hover:text-indigo-600 transition px-2 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-zinc-300 dark:hover:text-white">Home</a>
-            <a href="#about" className="text-sm text-zinc-700 hover:text-indigo-600 transition px-2 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-zinc-300 dark:hover:text-white">About</a>
-            <a href="#projects" className="text-sm text-zinc-700 hover:text-indigo-600 transition px-2 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-zinc-300 dark:hover:text-white">Projects</a>
-            <a href="#contact" className="text-sm text-zinc-700 hover:text-indigo-600 transition px-2 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-zinc-300 dark:hover:text-white">Contact</a>
+          {/* Center: Navigation links */}
+          <nav
+            className="flex flex-wrap md:flex-nowrap items-center justify-center gap-2 md:gap-6 text-sm text-zinc-700 dark:text-zinc-300"
+            aria-label="Footer navigation"
+          >
+            <a
+              href="#home"
+              className="px-2 py-1 rounded-md whitespace-nowrap hover:text-indigo-600 transition text-zinc-700 dark:text-zinc-300"
+            >
+              Home
+            </a>
+
+            <a
+              href="#about"
+              className="px-2 py-1 rounded-md whitespace-nowrap hover:text-indigo-600 transition text-zinc-700 dark:text-zinc-300"
+            >
+              About
+            </a>
+
+            <a
+              href="#projects"
+              className="px-2 py-1 rounded-md whitespace-nowrap hover:text-indigo-600 transition text-zinc-700 dark:text-zinc-300"
+            >
+              Projects
+            </a>
+
+            <a
+              href="#contact"
+              className="px-2 py-1 rounded-md whitespace-nowrap hover:text-indigo-600 transition text-zinc-700 dark:text-zinc-300"
+            >
+              Contact
+            </a>
+
+            <a
+              href="#tools"
+              className="px-2 py-1 rounded-md whitespace-nowrap hover:text-indigo-600 transition text-zinc-700 dark:text-zinc-300"
+            >
+              Tools
+            </a>
+
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className="px-2 py-1 rounded-md whitespace-nowrap hover:text-indigo-600 transition text-zinc-700 dark:text-zinc-300"
+            >
+              Resume
+            </a>
           </nav>
 
-          {/* right: socials + back-to-top */}
+          {/* Right: Social icons + Back-to-top */}
           <div className="flex items-center gap-3 md:gap-4">
-            <div className="flex gap-2 md:gap-3">
+            <div className="flex gap-2 md:gap-2">
               <a
                 href="https://github.com/mohdrazakhan"
                 target="_blank"
@@ -92,7 +135,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* bottom row: mobile copyright & small note */}
+        {/* Bottom row: mobile copyright & small note */}
         <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-zinc-600 dark:text-zinc-500">
           <div>© {year} mohdrazakhan.me. All rights reserved.</div>
           <div className="text-zinc-600 dark:text-zinc-400">

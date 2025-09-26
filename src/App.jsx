@@ -1,20 +1,23 @@
 import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import useTheme from "./hooks/useTheme";
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
+import Footer from "./components/Footer";
+import DottedBackground from "./components/DottedBackground";
+import { Analytics } from "@vercel/analytics/react";
+
+// Pages
+import Home from "./components/Home";
 import About from "./components/About";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
-import Footer from "./components/Footer";
-import { Analytics } from '@vercel/analytics/react';
-import DottedBackground from "./components/DottedBackground";
-
+import Tools from "./pages/Tools";
 
 export default function App() {
   useTheme();
 
   return (
-  <>
+    <BrowserRouter>
       <DottedBackground
         spacing={56}
         dotRadius={3}
@@ -25,18 +28,24 @@ export default function App() {
         spotlightStrength={0.35}
         spotlightColor="99,102,241"
       />
-  <div className="relative min-h-screen bg-gradient-to-b from-white/0 to-black/5 dark:from-black/70 dark:to-black/30 text-zinc-900 dark:text-zinc-100">
-  <Navbar />
-  <main className="relative z-10">
-          <Hero />
-          <Projects />
-          <About />
-          <Contact />
-      {/* Analytics is safe in client React apps via @vercel/analytics/react */}
-      <Analytics />
+
+      <div className="relative min-h-screen bg-gradient-to-b from-white/0 to-black/5 dark:from-black/70 dark:to-black/30 text-zinc-900 dark:text-zinc-100">
+        <Navbar />
+
+        <main className="relative z-10">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/tools" element={<Tools />} />
+          </Routes>
+
+          <Analytics />
         </main>
-  <Footer />
+
+        <Footer />
       </div>
-    </>
+    </BrowserRouter>
   );
 }
