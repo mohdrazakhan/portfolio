@@ -1,5 +1,6 @@
 // src/components/Projects.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import projects from "../data/projects";
 
 function Tag({ children }) {
@@ -12,6 +13,17 @@ function Tag({ children }) {
 
 export default function Projects() {
   const [open, setOpen] = useState(null);
+  const navigate = useNavigate();
+
+  const handleProjectClick = (project) => {
+    // Navigate to detail page for OptiRider
+    if (project.id === "optirider") {
+      navigate("/projects/optirider");
+    } else {
+      // Open modal for other projects
+      setOpen(project);
+    }
+  };
 
   return (
     <section id="projects" className="py-20 md:py-28 bg-transparent relative z-10">
@@ -28,10 +40,10 @@ export default function Projects() {
             <article
               key={p.id}
               className="group bg-zinc-900/40 rounded-2xl p-5 hover:shadow-xl transition cursor-pointer"
-              onClick={() => setOpen(p)}
+              onClick={() => handleProjectClick(p)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && setOpen(p)}
+              onKeyDown={(e) => e.key === "Enter" && handleProjectClick(p)}
             >
               <div className="h-40 w-full rounded-md overflow-hidden bg-zinc-800/30 mb-4">
                 {p.image ? (
