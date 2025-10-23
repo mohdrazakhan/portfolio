@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import DottedBackground from "./components/DottedBackground";
 import { Analytics } from "@vercel/analytics/react";
+import { AuthProvider } from "./context/AuthContext";
 
 // Pages
 import Home from "./components/Home";
@@ -13,11 +14,15 @@ import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Tools from "./pages/Tools";
 import OptiRiderDetail from "./pages/OptiRiderDetail";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import Admin from "./pages/Admin";
 
 export default function App() {
   useTheme();
 
   return (
+    <AuthProvider>
     <BrowserRouter>
       <DottedBackground
         spacing={56}
@@ -41,6 +46,9 @@ export default function App() {
             <Route path="/projects/optirider" element={<OptiRiderDetail />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/tools" element={<Tools />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
 
           <Analytics />
@@ -49,5 +57,6 @@ export default function App() {
         <Footer />
       </div>
     </BrowserRouter>
+    </AuthProvider>
   );
 }

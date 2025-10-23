@@ -97,7 +97,7 @@ export default function Tools() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 md:pt-28 pb-12">
       <h1 id="tools" className="text-3xl font-bold mb-6 text-zinc-900 dark:text-zinc-100">
         Developer Tools
       </h1>

@@ -16,12 +16,16 @@ A fast, modern, and responsive developer portfolio built with React, Vite, Tailw
 - Dark/Light theme toggle
 - Projects, Skills, About, and Contact sections
 - Clean, component-driven structure
+- Blog with owner-only editor (Firebase Auth)
+- Posts persisted in Firebase Firestore with draft/publish states
 
 ## Tech Stack
 - React 19 + Vite 7
 - Tailwind CSS 3
 - Framer Motion 12
 - Lucide Icons
+- Firebase Auth (email/password)
+- Firebase Firestore
 
 ## Quick Start
 
@@ -102,6 +106,89 @@ Two easy options:
 - Build locally, then publish the `dist/` directory to a `gh-pages` branch using your preferred tool.
 
 Alternatively, deploy to Netlify or Vercel — both work great with Vite projects.
+
+For SPA deep-links (e.g., `/projects/optirider` or `/blog/:id`) make sure rewrites are enabled:
+
+- Vercel: see `vercel.json` in the repo.
+- Netlify: see `public/_redirects` with `/*   /index.html   200`.
+
+## Blog + Admin (Firebase)
+
+The blog editor is visible only when you are logged in (email/password) via Firebase Auth. Posts are stored in Firestore and support draft/publish.
+
+### 1) Environment variables
+Create a `.env` file in the project root and add your Firebase credentials:
+
+```
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+```
+
+Restart the dev server after changing `.env`.
+
+### 2) Firebase setup
+
+- Enable Authentication → Sign-in method → Email/Password.
+- Create your admin user in Firebase Authentication Users.
+- Create a Firestore database in production mode.
+- Enable Firebase Storage for project image uploads.
+
+Recommended Firestore security rules (adjust as needed):
+
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /posts/{postId} {
+      allow read: if resource.data.published == true;
+      allow read, write: if request.auth != null; // owner-only in UI
+    }
+  }
+}
+```
+
+Recommended Storage security rules:
+
+```js
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /projects/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
+    }
+    match /blog/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024;
+    }
+  }
+}
+```
+
+With these rules, public visitors can read only published posts. Authenticated you (admin) can create, update, delete posts and see drafts.
+
+### 3) Admin Panel Features
+
+- **Projects Manager**: Add, edit, delete projects with:
+  - Firebase Storage image upload (drag-and-drop or paste URL)
+  - Live image preview
+  - Team/contributor support
+  - Tech stack tags
+  - Project status (Completed, In Progress, Planning)
+  - Featured project toggle
+  - Live demo and repo links
+  - Automatic statistics dashboard
+
+- **Blog Manager**: Full-featured rich text editor with draft/publish states
+- **Activities Manager**: Recent updates and timeline
+
+### 4) One-time migration from localStorage
+
+If you previously created posts locally (older version), the app will import them into Firestore automatically the first time an authenticated admin opens the Blog page (if Firestore is empty). A local flag prevents duplicate imports.
 
 ## Screenshots
 

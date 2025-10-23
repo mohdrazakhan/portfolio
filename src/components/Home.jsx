@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import RecentActivity from "./RecentActivity";
+import BlogSection from "./BlogSection";
+import { db } from "../firebase/app";
+import { collection, onSnapshot, query, where, orderBy, limit } from "firebase/firestore";
 
 function Typewriter({ text, speed = 90, className = "" }) {
   const [display, setDisplay] = useState("");
@@ -31,6 +35,37 @@ function Typewriter({ text, speed = 90, className = "" }) {
 }
 
 export default function Home() {
+  // recent published posts from Firestore
+  const [recentPosts, setRecentPosts] = useState([]);
+  
+  useEffect(() => {
+    const col = collection(db, "posts");
+    const q = query(col, where("published", "==", true), orderBy("updatedAt", "desc"), limit(3));
+    const unsub = onSnapshot(q, (snap) => {
+      const strip = (html) => (html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      const list = snap.docs.map((d) => {
+        const p = { id: d.id, ...d.data() };
+        return {
+          id: p.id,
+          slug: p.id,
+          title: p.title,
+          summary: strip(p.content).slice(0, 140) + (strip(p.content).length > 140 ? "…" : ""),
+          date: (p.updatedAt?.toDate?.() || p.createdAt?.toDate?.() || new Date()).toLocaleDateString(),
+          tags: [],
+        };
+      });
+      setRecentPosts(list);
+    });
+    return () => unsub();
+  }, []);
+
+  const handleScrollTo = (e, sectionId) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
   return (
     <main className="w-full min-h-screen">
       {/* HERO */}
@@ -85,19 +120,23 @@ export default function Home() {
             <div className="mt-6 flex flex-row flex-wrap justify-center md:justify-start gap-3">
               <a
                 href="#projects"
-                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium bg-gradient-to-r from-indigo-600 to-violet-600 text-white"
+                onClick={(e) => handleScrollTo(e, 'projects')}
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 transition-all cursor-pointer"
               >
                 View Projects
               </a>
               <a
                 href="#contact"
-                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium border-2 border-zinc-900 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900/40"
+                onClick={(e) => handleScrollTo(e, 'contact')}
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium border-2 border-zinc-900 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900/40 transition-all cursor-pointer"
               >
                 Contact
               </a>
               <a
                 href="/resume.pdf"
-                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium border-2 border-zinc-900 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900/40"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base font-medium border-2 border-zinc-900 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900/40 transition-all"
               >
                 Resume
               </a>
@@ -105,6 +144,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* RECENT ACTIVITY */}
+      <RecentActivity />
+
+      {/* RECENT BLOG PREVIEW */}
+      <BlogSection posts={recentPosts} />
     </main>
   );
 }

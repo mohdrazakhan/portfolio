@@ -1,10 +1,29 @@
 // src/components/Footer.jsx
-import React from "react";
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { ArrowUp, Github, Linkedin } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 
 export default function Footer() {
+  const { user, loginWithEmail, logout } = useAuth();
   const year = new Date().getFullYear();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    setLoginError("");
+    try {
+      await loginWithEmail(email, password);
+      setShowLoginModal(false);
+      setEmail("");
+      setPassword("");
+    } catch (err) {
+      setLoginError(err.message || "Invalid credentials");
+    }
+  }
 
   function scrollToTop() {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -85,8 +104,25 @@ export default function Footer() {
             </a>
           </nav>
 
-          {/* Right: Social icons + Back-to-top */}
+          {/* Right: Social icons + Admin/Login + Back-to-top */}
           <div className="flex items-center gap-3 md:gap-4">
+            <div className="mr-2">
+              {user ? (
+                <a
+                  href="/admin"
+                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm"
+                >
+                  Admin
+                </a>
+              ) : (
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm"
+                >
+                  Login
+                </button>
+              )}
+            </div>
             <div className="flex gap-2 md:gap-2">
               <a
                 href="https://github.com/mohdrazakhan"
@@ -122,6 +158,9 @@ export default function Footer() {
               </a>
             </div>
 
+            {user && (
+              <button onClick={logout} className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm mr-2">Logout</button>
+            )}
             <div className="border-l border-zinc-200 dark:border-zinc-800 pl-3 md:pl-4">
               <button
                 onClick={scrollToTop}
@@ -134,6 +173,42 @@ export default function Footer() {
             </div>
           </div>
         </div>
+
+        {/* Login Modal */}
+        {showLoginModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowLoginModal(false)}>
+            <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-semibold mb-4">Admin Login</h3>
+              <form onSubmit={handleLogin} className="space-y-3">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-md border px-3 py-2 bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700"
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-md border px-3 py-2 bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700"
+                  required
+                />
+                {loginError && <p className="text-sm text-red-600">{loginError}</p>}
+                <div className="flex gap-2">
+                  <button type="submit" className="flex-1 px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-sm">
+                    Sign In
+                  </button>
+                  <button type="button" onClick={() => setShowLoginModal(false)} className="px-4 py-2 rounded-md border border-zinc-300 dark:border-zinc-700 text-sm">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Bottom row: mobile copyright & small note */}
         <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-zinc-600 dark:text-zinc-500">

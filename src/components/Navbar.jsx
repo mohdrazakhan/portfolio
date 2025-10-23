@@ -48,6 +48,9 @@ export default function Navbar() {
           <NavLink to="/tools" className={({ isActive }) => (isActive ? "text-indigo-600" : "hover:text-green-600")}>
             Tools
           </NavLink>
+          <NavLink to="/blog" className={({ isActive }) => (isActive ? "text-indigo-600" : "hover:text-green-600")}>
+            Blog
+          </NavLink>
         </nav>
 
         {/* Right side actions */}
@@ -109,6 +112,7 @@ export default function Navbar() {
             <NavLink to="/projects" onClick={() => setMenuOpen(false)}>Projects</NavLink>
             <NavLink to="/contact" onClick={() => setMenuOpen(false)}>Contact</NavLink>
             <NavLink to="/tools" onClick={() => setMenuOpen(false)}>Tools</NavLink>
+            <NavLink to="/blog" onClick={() => setMenuOpen(false)}>Blog</NavLink>
 
             {/* Resume inside drawer (mobile only) */}
             <a

@@ -735,7 +735,7 @@ export default function OptiRiderDetail() {
             { icon: Zap, label: "Platforms Supported", value: "5+" },
             { icon: Clock, label: "Time Saved Daily", value: "2hrs" },
             { icon: TrendingUp, label: "Earnings Boost", value: "+40%" },
-            { icon: CheckCircle2, label: "Patent Status", value: "Filed" },
+            { icon: CheckCircle2, label: "Patent On 17/10/2025", value: "Published" },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
