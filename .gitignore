@@ -5,3 +5,7 @@ dist/
 .DS_Store
 .env
 .env.local
+
+# Ignore large binaries
+public/asset/one-room/*.apk
+*.apk

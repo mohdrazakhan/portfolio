@@ -29,7 +29,8 @@ export default function OneRoomDetail() {
   };
 
   // APK download (ensure this path matches your public assets)
-  const apkPath = withBase("asset/one-room/oneiroom.apk");
+  // Google Drive direct download link for APK (provided by user)
+  const apkUrl = "https://drive.google.com/uc?export=download&id=1PMsLz2PveqXBaa33oqTGjQXPVwGnt7hx";
   const github = "https://github.com/mohdrazakhan/oneRoom---Roommate-management-application.git";
 
   const container = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08 } } };
@@ -59,7 +60,7 @@ export default function OneRoomDetail() {
               Keep your shared life simple: split expenses, track tasks, chat with roommates, and stay on top of reminders — all in a single app.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <a href={apkPath} download className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-700">
+              <a href={apkUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-700">
                 <Download size={18} /> Download v1.0.0 (Android APK)
               </a>
               <a href={github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/40 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-zinc-800">
@@ -169,7 +170,7 @@ export default function OneRoomDetail() {
 
         {/* Footer actions */}
         <motion.div className="mt-12 flex flex-wrap items-center gap-3" variants={item}>
-          <a href={apkPath} download className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-700">
+          <a href={apkUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-700">
             <Download size={18} /> Download v1.0.0 (Android APK)
           </a>
           <a href={github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/40 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-zinc-800">
