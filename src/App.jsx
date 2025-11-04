@@ -14,6 +14,8 @@ import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Tools from "./pages/Tools";
 import OptiRiderDetail from "./pages/OptiRiderDetail";
+import FuelFatalityDetail from "./pages/FuelFadalityDetail";
+import OneRoomDetail from "./pages/OneRoomDetail";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Admin from "./pages/Admin";
@@ -44,6 +46,8 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/optirider" element={<OptiRiderDetail />} />
+            <Route path="/projects/fuel-fatality" element={<FuelFatalityDetail />} />
+            <Route path="/projects/one-room" element={<OneRoomDetail />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/blog" element={<Blog />} />

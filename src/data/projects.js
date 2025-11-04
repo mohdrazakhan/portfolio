@@ -2,13 +2,13 @@
 const projects = [
   {
     id: "roommate-manager",
-    title: "One-Room (Roommate Manager)",
-    short: "A roommate expense tracker with seamless split calculations.",
+    title: "One Room — Roommate Life Manager",
+    short: "All‑in‑one roommate app: expenses, tasks, chat, reminders.",
     description:
-      "A full-featured expense tracker with user auth, realtime updates and CSV export. Built with React, Tailwind and a small Node server for webhooks.",
-    tags: ["React", "Tailwind", "Firebase"],
-    image: "/images/roommate.png", 
-    demo: "#",
+      "Flutter + Firebase app to manage shared living: smart expense splits, chores, rich chat, and secure data with Firestore rules.",
+    tags: ["Flutter", "Firebase", "Material 3"],
+    image: "/images/roommate.png",
+    demo: "/projects/one-room",
     repo: "https://github.com/mohdrazakhan/oneRoom---Roommate-management-application.git",
   },
   {
@@ -19,6 +19,17 @@ const projects = [
       "Experiment showing route optimization and visual ETA improvements using D3 + Mapbox. Great for logistics demos and prototypes.",
     tags: ["D3", "Mapbox", "Prototype"],
     image: "/images/optirider.png",
+    demo: "#",
+    repo: "#",
+  },
+  {
+    id: "fuel-fatality",
+    title: "Fuel Fadality",
+    short: "IoT-based fuel quality monitoring with ESP32 and Firebase.",
+    description:
+      "Real-time fuel quality and quantity monitoring system using ESP32, turbidity sensor, YF-S201 flow sensor, and LM35 with Firebase cloud integration and OLED display.",
+    tags: ["ESP32", "IoT Sensors", "Firebase", "Embedded C"],
+    image: "/public/asset/fuel-Fadality/curcit_diagram.jpeg",
     demo: "#",
     repo: "#",
   },

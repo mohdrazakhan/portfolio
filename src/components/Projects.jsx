@@ -16,9 +16,13 @@ export default function Projects() {
   const navigate = useNavigate();
 
   const handleProjectClick = (project) => {
-    // Navigate to detail page for OptiRider
+    // Navigate to detail page for OptiRider and Fuel Fatality
     if (project.id === "optirider") {
       navigate("/projects/optirider");
+    } else if (project.id === "fuel-fatality") {
+      navigate("/projects/fuel-fatality");
+    } else if (project.id === "roommate-manager") {
+      navigate("/projects/one-room");
     } else {
       // Open modal for other projects
       setOpen(project);
