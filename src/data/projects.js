@@ -29,7 +29,7 @@ const projects = [
     description:
       "Real-time fuel quality and quantity monitoring system using ESP32, turbidity sensor, YF-S201 flow sensor, and LM35 with Firebase cloud integration and OLED display.",
     tags: ["ESP32", "IoT Sensors", "Firebase", "Embedded C"],
-    image: "/public/asset/fuel-Fadality/curcit_diagram.jpeg",
+    image: "/asset/fuel-Fadality/curcit_diagram.jpeg",
     demo: "#",
     repo: "#",
   },
