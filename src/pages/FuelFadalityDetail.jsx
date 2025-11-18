@@ -270,7 +270,7 @@ export default function FuelFatalityDetail() {
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       // Fallback to placeholder if image doesn't exist
-                      e.target.src = "/images/fuel-fatality.png";
+                      e.target.src = "/public/fuel-fadality/curcit_diagram copy.jpeg";
                     }}
                   />
                   {/* Image overlay with title */}
@@ -315,7 +315,7 @@ export default function FuelFatalityDetail() {
                     alt={img.title}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.src = "/images/fuel-fatality.png";
+                      e.target.src = "/public/fuel-fadality/curcit_diagram copy.jpeg";
                     }}
                   />
                   {currentSlide === index && (

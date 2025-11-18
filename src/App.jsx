@@ -16,6 +16,7 @@ import Tools from "./pages/Tools";
 import OptiRiderDetail from "./pages/OptiRiderDetail";
 import FuelFatalityDetail from "./pages/FuelFadalityDetail";
 import OneRoomDetail from "./pages/OneRoomDetail";
+import AquaMinderDetail from "./pages/AquaMinderDetail";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Admin from "./pages/Admin";
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="/projects/optirider" element={<OptiRiderDetail />} />
             <Route path="/projects/fuel-fatality" element={<FuelFatalityDetail />} />
             <Route path="/projects/one-room" element={<OneRoomDetail />} />
+            <Route path="/projects/aquaminder" element={<AquaMinderDetail />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/blog" element={<Blog />} />
