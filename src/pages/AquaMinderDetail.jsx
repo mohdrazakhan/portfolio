@@ -99,7 +99,7 @@ export default function AquaMinderDetail() {
             {/* Action Buttons */}
             <motion.div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4" variants={itemVariants}>
               <motion.a
-                href="#"
+                href="https://aqua-minder.vercel.app/"
                 className="w-full sm:w-auto group px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl transition font-medium shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 text-sm sm:text-base"
                 target="_blank"
                 rel="noreferrer"
@@ -110,7 +110,7 @@ export default function AquaMinderDetail() {
                 View Live Demo
               </motion.a>
               <motion.a
-                href="#"
+                href="https://github.com/mohdrazakhan/AquaMinder"
                 className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-zinc-700 hover:border-cyan-500 hover:bg-zinc-800/50 text-zinc-200 rounded-xl transition font-medium backdrop-blur-sm text-center text-sm sm:text-base"
                 target="_blank"
                 rel="noreferrer"
