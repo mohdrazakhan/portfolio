@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-import { 
+import {
   LogIn, LogOut, User, PlusCircle, Edit3, Trash2, X, Save, FileText, Briefcase, Activity,
   Upload, Image as ImageIcon, Link as LinkIcon, Users, Tag, ExternalLink, Github, Calendar,
   Code, Sparkles, Loader
 } from "lucide-react";
 import projects from "../data/projects";
 import { activities } from "../data/activities";
-import { storage } from "../firebase/app";
+import {
+  collection, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, doc, serverTimestamp, setDoc
+} from "firebase/firestore";
+import { db, storage } from "../firebase/app";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import projectsData from "../data/projects";
+import { activities as activitiesData } from "../data/activities";
 
 const TABS = ["projects", "blog", "activities"];
 
@@ -97,11 +103,10 @@ export default function Admin() {
           <button
             key={t}
             onClick={() => setActiveTab(t)}
-            className={`px-4 py-2 text-sm font-medium capitalize transition ${
-              activeTab === t
-                ? "border-b-2 border-indigo-600 text-indigo-600"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-            }`}
+            className={`px-4 py-2 text-sm font-medium capitalize transition ${activeTab === t
+              ? "border-b-2 border-indigo-600 text-indigo-600"
+              : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+              }`}
           >
             {t === "projects" && <Briefcase size={16} className="inline mr-1" />}
             {t === "blog" && <FileText size={16} className="inline mr-1" />}
@@ -123,35 +128,81 @@ export default function Admin() {
 
 // --- Projects Manager ---
 function ProjectsManager() {
-  const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem("admin.projects");
-    return saved ? JSON.parse(saved) : projects;
-  });
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem("admin.projects", JSON.stringify(items));
-  }, [items]);
+    // Sort by 'order' ascending so 1 comes first
+    const q = query(collection(db, "projects"), orderBy("order", "asc"));
+    const unsub = onSnapshot(q, (snap) => {
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setItems(list);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
 
-  function handleSave(data) {
-    if (editing) {
-      setItems((prev) => prev.map((p) => (p.id === editing.id ? { ...data, id: editing.id } : p)));
-    } else {
-      setItems((prev) => [...prev, { ...data, id: `proj-${Date.now()}` }]);
+  async function handleSave(data) {
+    try {
+      if (editing) {
+        await updateDoc(doc(db, "projects", editing.id), {
+          ...data,
+          updatedAt: serverTimestamp()
+        });
+      } else {
+        await addDoc(collection(db, "projects"), {
+          ...data,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }
+      setShowModal(false);
+      setEditing(null);
+    } catch (err) {
+      console.error("Error saving project:", err);
+      alert("Failed to save project");
     }
-    setShowModal(false);
-    setEditing(null);
   }
 
-  function handleDelete(id) {
-    if (confirm("Delete this project?")) setItems((prev) => prev.filter((p) => p.id !== id));
+  async function handleDelete(id) {
+    if (confirm("Delete this project?")) {
+      try {
+        await deleteDoc(doc(db, "projects", id));
+      } catch (err) {
+        console.error("Error deleting project:", err);
+        alert("Failed to delete project");
+      }
+    }
+  }
+
+  // One-time seed helper (hidden generally, but useful if empty)
+  async function handleSeed() {
+    if (!confirm("Import static projects to database? This will overwrite existing projects.")) return;
+
+    try {
+      await Promise.all(projectsData.map(async (p, index) => {
+        const { id, ...rest } = p;
+        await setDoc(doc(db, "projects", id), {
+          ...rest,
+          // Assign order based on array position (1-based)
+          order: index + 1,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }));
+      alert("Projects imported successfully with default order!");
+    } catch (err) {
+      console.error("Import failed:", err);
+      alert("Failed to import projects.");
+    }
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }} 
-      animate={{ opacity: 1, y: 0 }} 
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >
@@ -164,13 +215,13 @@ function ProjectsManager() {
           </h2>
           <p className="text-sm text-zinc-400 mt-1">Showcase your best work and achievements</p>
         </div>
-        <motion.button 
-          onClick={() => { setEditing(null); setShowModal(true); }} 
+        <motion.button
+          onClick={() => { setEditing(null); setShowModal(true); }}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium shadow-lg shadow-indigo-500/30 transition"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
         >
-          <PlusCircle size={18} /> 
+          <PlusCircle size={18} />
           New Project
         </motion.button>
       </div>
@@ -333,22 +384,30 @@ function ProjectsManager() {
       </div>
 
       {items.length === 0 && (
-        <motion.div 
-          initial={{ opacity: 0 }} 
+        <motion.div
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center py-16 px-4 rounded-2xl border-2 border-dashed border-zinc-800"
         >
           <Briefcase className="mx-auto text-zinc-700 mb-4" size={64} />
           <h3 className="text-xl font-semibold text-zinc-400 mb-2">No projects yet</h3>
           <p className="text-sm text-zinc-600 mb-6">Start showcasing your work by adding your first project</p>
-          <motion.button
-            onClick={() => { setEditing(null); setShowModal(true); }}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <PlusCircle size={18} /> Add Your First Project
-          </motion.button>
+          <div className="flex gap-3 justify-center">
+            <motion.button
+              onClick={() => { setEditing(null); setShowModal(true); }}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <PlusCircle size={18} /> Add Your First Project
+            </motion.button>
+            <button
+              onClick={handleSeed}
+              className="px-4 py-2 text-sm text-zinc-500 hover:text-zinc-300 underline"
+            >
+              Import Defaults
+            </button>
+          </div>
         </motion.div>
       )}
 
@@ -358,17 +417,28 @@ function ProjectsManager() {
 }
 
 function ProjectModal({ initial, onSave, onClose }) {
-  const [form, setForm] = useState(initial || { 
-    title: "", 
-    short: "", 
-    description: "", 
-    tags: "", 
-    image: "", 
-    demo: "", 
-    repo: "",
-    team: "",
-    status: "completed",
-    featured: false
+  const [form, setForm] = useState(() => {
+    if (!initial) {
+      return {
+        title: "",
+        short: "",
+        description: "",
+        tags: "",
+        image: "",
+        demo: "",
+        repo: "",
+        team: "",
+        status: "completed",
+        featured: false,
+        order: 99
+      };
+    }
+    return {
+      ...initial,
+      tags: Array.isArray(initial.tags) ? initial.tags.join(", ") : initial.tags || "",
+      team: Array.isArray(initial.team) ? initial.team.join(", ") : initial.team || "",
+      order: initial.order || 99
+    };
   });
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -386,9 +456,9 @@ function ProjectModal({ initial, onSave, onClose }) {
       console.log("No file selected");
       return;
     }
-    
+
     console.log("File selected:", file.name, file.type, file.size);
-    
+
     // Validate file type
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
@@ -409,7 +479,7 @@ function ProjectModal({ initial, onSave, onClose }) {
       const timestamp = Date.now();
       const fileName = `projects/${timestamp}_${file.name}`;
       console.log("Storage path:", fileName);
-      
+
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -424,7 +494,7 @@ function ProjectModal({ initial, onSave, onClose }) {
           console.error("Upload error:", error);
           console.error("Error code:", error.code);
           console.error("Error message:", error.message);
-          
+
           let errorMessage = "Failed to upload image. ";
           if (error.code === "storage/unauthorized") {
             errorMessage += "Please check Firebase Storage rules.";
@@ -433,7 +503,7 @@ function ProjectModal({ initial, onSave, onClose }) {
           } else {
             errorMessage += error.message;
           }
-          
+
           alert(errorMessage);
           setUploading(false);
           setUploadProgress(0);
@@ -464,43 +534,44 @@ function ProjectModal({ initial, onSave, onClose }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!form.title.trim()) {
       alert("Please enter a project title");
       return;
     }
-    
-    const tagsArray = form.tags.split(",").map((t) => t.trim()).filter(Boolean);
-    const teamArray = form.team.split(",").map((t) => t.trim()).filter(Boolean);
-    
-    onSave({ 
-      ...form, 
+
+    const tagsArray = typeof form.tags === "string" ? form.tags.split(",").map((t) => t.trim()).filter(Boolean) : (Array.isArray(form.tags) ? form.tags : []);
+    const teamArray = typeof form.team === "string" ? form.team.split(",").map((t) => t.trim()).filter(Boolean) : (Array.isArray(form.team) ? form.team : []);
+
+    onSave({
+      ...form,
+      order: Number(form.order) || 99,
       tags: tagsArray,
       team: teamArray
     });
-    
+
     onClose();
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-      <motion.div 
-        initial={{ scale: 0.95, opacity: 0 }} 
-        animate={{ scale: 1, opacity: 1 }} 
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl border border-zinc-800 w-full max-w-4xl my-8 shadow-2xl"
       >
         {/* Header */}
         <div className="relative bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-pink-600/20 border-b border-zinc-800 p-6 sticky top-0 z-10 bg-zinc-900/95 backdrop-blur-sm">
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10"
             animate={{ opacity: [0.5, 0.8, 0.5] }}
             transition={{ duration: 3, repeat: Infinity }}
           />
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <motion.div 
+              <motion.div
                 className="p-2 bg-indigo-600/20 rounded-lg border border-indigo-500/30"
                 whileHover={{ scale: 1.05, rotate: 5 }}
               >
@@ -511,8 +582,8 @@ function ProjectModal({ initial, onSave, onClose }) {
                 <p className="text-sm text-zinc-400">Fill in the details below to showcase your work</p>
               </div>
             </div>
-            <motion.button 
-              onClick={onClose} 
+            <motion.button
+              onClick={onClose}
               className="p-2 hover:bg-zinc-800 rounded-lg transition"
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
@@ -530,7 +601,7 @@ function ProjectModal({ initial, onSave, onClose }) {
               <ImageIcon size={16} className="text-indigo-400" />
               Project Thumbnail
             </label>
-            
+
             <div className="grid md:grid-cols-2 gap-4">
               {/* Upload Area */}
               <div className="space-y-3">
@@ -542,7 +613,7 @@ function ProjectModal({ initial, onSave, onClose }) {
                     className="hidden"
                     disabled={uploading}
                   />
-                  <motion.div 
+                  <motion.div
                     className="border-2 border-dashed border-zinc-700 hover:border-indigo-500 rounded-xl p-8 text-center transition-all bg-zinc-900/50"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -552,7 +623,7 @@ function ProjectModal({ initial, onSave, onClose }) {
                         <Loader className="mx-auto text-indigo-400 animate-spin" size={32} />
                         <div className="text-sm text-zinc-400">Uploading... {uploadProgress}%</div>
                         <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
-                          <motion.div 
+                          <motion.div
                             className="bg-gradient-to-r from-indigo-600 to-purple-600 h-full"
                             initial={{ width: 0 }}
                             animate={{ width: `${uploadProgress}%` }}
@@ -587,6 +658,20 @@ function ProjectModal({ initial, onSave, onClose }) {
                 </div>
               </div>
 
+
+              {/* Order Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-zinc-300">Display Order</label>
+                <input
+                  type="number"
+                  value={form.order}
+                  onChange={(e) => setForm({ ...form, order: e.target.value })}
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-900/50 px-4 py-2 text-zinc-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+                  placeholder="1, 2, 3..."
+                />
+                <p className="text-xs text-zinc-500">Lower numbers show first (1 = Top)</p>
+              </div>
+
               {/* Preview */}
               <div className="space-y-2">
                 <div className="text-xs text-zinc-500 uppercase tracking-wide">Preview</div>
@@ -602,6 +687,7 @@ function ProjectModal({ initial, onSave, onClose }) {
               </div>
             </div>
           </div>
+
 
           {/* Basic Info */}
           <div className="grid md:grid-cols-2 gap-4">
@@ -722,6 +808,7 @@ function ProjectModal({ initial, onSave, onClose }) {
             </div>
           </div>
 
+
           {/* Featured Toggle */}
           <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900/50 border border-zinc-800">
             <div className="flex items-center gap-3">
@@ -766,9 +853,9 @@ function ProjectModal({ initial, onSave, onClose }) {
               {initial ? "Update Project" : "Create Project"}
             </motion.button>
           </div>
-        </form>
-      </motion.div>
-    </div>
+        </form >
+      </motion.div >
+    </div >
   );
 }
 
@@ -786,38 +873,60 @@ function BlogManager() {
 
 // --- Activities Manager ---
 function ActivitiesManager() {
-  const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem("admin.activities");
-    return saved ? JSON.parse(saved) : activities;
-  });
+  const [items, setItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem("admin.activities", JSON.stringify(items));
-  }, [items]);
+    const q = query(collection(db, "activities"), orderBy("date", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setItems(list);
+    });
+    return () => unsub();
+  }, []);
 
-  function handleSave(data) {
-    if (editing) {
-      setItems((prev) => prev.map((a) => (a.id === editing.id ? { ...data, id: editing.id } : a)));
-    } else {
-      setItems((prev) => [{ ...data, id: `act-${Date.now()}` }, ...prev]);
+  async function handleSave(data) {
+    try {
+      if (editing) {
+        await updateDoc(doc(db, "activities", editing.id), { ...data });
+      } else {
+        await addDoc(collection(db, "activities"), { ...data });
+      }
+      setShowModal(false);
+      setEditing(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save activity");
     }
-    setShowModal(false);
-    setEditing(null);
   }
 
-  function handleDelete(id) {
-    if (confirm("Delete this activity?")) setItems((prev) => prev.filter((a) => a.id !== id));
+  async function handleDelete(id) {
+    if (confirm("Delete this activity?")) {
+      await deleteDoc(doc(db, "activities", id));
+    }
+  }
+
+  async function handleSeed() {
+    if (!confirm("Import default activities?")) return;
+    for (const a of activitiesData) {
+      const { id, ...rest } = a;
+      await addDoc(collection(db, "activities"), rest);
+    }
   }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Recent Activities</h2>
-        <button onClick={() => { setEditing(null); setShowModal(true); }} className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-sm">
-          <PlusCircle size={16} /> Add Activity
-        </button>
+        <div className="flex gap-2">
+          {items.length === 0 && (
+            <button onClick={handleSeed} className="text-xs text-zinc-500 hover:text-zinc-300 underline">Import Defaults</button>
+          )}
+          <button onClick={() => { setEditing(null); setShowModal(true); }} className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-sm">
+            <PlusCircle size={16} /> Add Activity
+          </button>
+        </div>
       </div>
       <div className="space-y-3">
         {items.map((a) => (

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { activities as seedActivities, activityTypeColors } from "../data/activities";
 import { ExternalLink } from "lucide-react";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "../firebase/app";
 
 const container = {
   hidden: { opacity: 0 },
@@ -17,15 +19,19 @@ const item = {
 };
 
 export default function RecentActivity({ title = "Recent Activity", limit = 6 }) {
-  const [items, setItems] = useState(seedActivities);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("admin.activities") || "null");
-      if (Array.isArray(saved) && saved.length) {
-        setItems(saved);
+    // Sync with Firestore
+    const q = query(collection(db, "activities"), orderBy("date", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      } else {
+        setItems([]);
       }
-    } catch {}
+    });
+    return () => unsub();
   }, []);
 
   const handleScrollToProjects = (e) => {
@@ -44,8 +50,8 @@ export default function RecentActivity({ title = "Recent Activity", limit = 6 })
       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="flex items-end justify-between mb-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">{title}</h2>
-          <a 
-            href="#projects" 
+          <a
+            href="#projects"
             onClick={handleScrollToProjects}
             className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
           >

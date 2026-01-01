@@ -30,7 +30,7 @@ export default function OneRoomDetail() {
 
   // APK download (ensure this path matches your public assets)
   // Google Drive direct download link for APK (provided by user)
-  const apkUrl = "https://drive.google.com/uc?export=download&id=1PMsLz2PveqXBaa33oqTGjQXPVwGnt7hx";
+  const apkUrl = "https://play.google.com/store/apps/details?id=com.oneroom.app";
   const github = "https://github.com/mohdrazakhan/oneRoom---Roommate-management-application.git";
 
   const container = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08 } } };
@@ -61,7 +61,7 @@ export default function OneRoomDetail() {
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <a href={apkUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-700">
-                <Download size={18} /> Download v1.0.0 (Android APK)
+                <Download size={18} /> Android APK
               </a>
               <a href={github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/40 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-zinc-800">
                 <Github size={18} /> View Code
@@ -171,7 +171,7 @@ export default function OneRoomDetail() {
         {/* Footer actions */}
         <motion.div className="mt-12 flex flex-wrap items-center gap-3" variants={item}>
           <a href={apkUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-700">
-            <Download size={18} /> Download v1.0.0 (Android APK)
+            <Download size={18} /> Download Android APK
           </a>
           <a href={github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/40 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-zinc-800">
             <Github size={18} /> GitHub Repository
@@ -203,7 +203,7 @@ function InteractiveFlow({ variants }) {
       <p className="text-sm text-zinc-400">{desc}</p>
       <motion.span
         layoutId="flowGlow"
-        className={`pointer-events-none absolute inset-0 -z-10 rounded-2xl opacity-0 group-hover:opacity-100`} 
+        className={`pointer-events-none absolute inset-0 -z-10 rounded-2xl opacity-0 group-hover:opacity-100`}
         style={{ boxShadow: `0 0 0 1px rgba(99,102,241,0.12), inset 0 0 80px rgba(99,102,241,0.05)` }}
       />
     </motion.button>

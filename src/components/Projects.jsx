@@ -1,7 +1,9 @@
 // src/components/Projects.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import projects from "../data/projects";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "../firebase/app";
+import { default as staticProjects } from "../data/projects";
 
 function Tag({ children }) {
   return (
@@ -15,8 +17,27 @@ export default function Projects() {
   const [open, setOpen] = useState(null);
   const navigate = useNavigate();
 
+  // Load projects from Firestore
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    // Sync with Firestore
+    // Sync with Firestore, ordered by 'order' ascending
+    const q = query(collection(db, "projects"), orderBy("order", "asc"));
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        setProjects(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      } else {
+        // Fallback to static if DB is empty to avoid blank section on fresh seed
+        setProjects(staticProjects);
+      }
+    });
+    return () => unsub();
+  }, []);
+
   const handleProjectClick = (project) => {
     // Navigate to detail page for main projects
+    // Note: The ID in the database matches the ID in data/projects.js
     if (project.id === "optirider") {
       navigate("/projects/optirider");
     } else if (project.id === "fuel-fatality") {
