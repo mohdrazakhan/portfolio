@@ -7,39 +7,7 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-import { db, storage } from "../firebase/app";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import {
-  collection,
-  addDoc,
-  doc,
-  updateDoc,
-  deleteDoc,
-  onSnapshot,
-  serverTimestamp,
-  query,
-  orderBy,
-  writeBatch,
-  Timestamp,
-} from "firebase/firestore";
-
-// Local storage keys
-const LS_POSTS_KEY = "blog.posts.v1";
-const LS_OWNER_KEY = "blog.owner.logged";
-
-// Utility to load env-based owner credentials with safe defaults
-const OWNER_ID = import.meta?.env?.VITE_OWNER_ID || "admin";
-const OWNER_PASS = import.meta?.env?.VITE_OWNER_PASSWORD || "secret";
-if (import.meta?.env?.DEV) {
-  // Minimal debug in dev only
-  // eslint-disable-next-line no-console
-  console.log("[Blog] Env OWNER_ID:", OWNER_ID);
-  // eslint-disable-next-line no-console
-  console.log("[Blog] Env OWNER_PASS length:", OWNER_PASS?.length);
-}
-
-// A very small emoji palette to keep bundle light
-const EMOJIS = ["😀", "😎", "🚀", "🎯", "📝", "💡", "🔥", "🎉", "❤️", "👏", "✨", "🧠", "📈", "🧩", "🔧", "🧪"];
+import api from "../services/api";
 
 function toDate(v) {
   if (!v) return null;
@@ -58,46 +26,22 @@ export default function Blog() {
   const [content, setContent] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [publish, setPublish] = useState(true);
-  const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Subscribe to Firestore posts
-  useEffect(() => {
-    const col = collection(db, "posts");
-    const q = query(col, orderBy("updatedAt", "desc"));
-    const unsub = onSnapshot(q, (snap) => {
-      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setPosts(list);
-    });
-    return () => unsub();
-  }, []);
-
-  // One-time migration from localStorage if Firestore empty
-  useEffect(() => {
-    if (!user) return; // only admin can migrate
-    if (posts.length > 0) return;
-    const migratedFlag = localStorage.getItem("blog.firestore.migrated");
-    if (migratedFlag === "1") return;
+  const fetchPosts = useCallback(async () => {
     try {
-      const raw = localStorage.getItem(LS_POSTS_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(arr) || arr.length === 0) return;
-      const batch = writeBatch(db);
-      const col = collection(db, "posts");
-      arr.forEach((p) => {
-        const ref = doc(col);
-        batch.set(ref, {
-          title: p.title,
-          content: p.content,
-          createdAt: p.createdAt ? Timestamp.fromMillis(p.createdAt) : serverTimestamp(),
-          updatedAt: p.updatedAt ? Timestamp.fromMillis(p.updatedAt) : serverTimestamp(),
-          published: !!p.published,
-        });
-      });
-      batch.commit().then(() => {
-        localStorage.setItem("blog.firestore.migrated", "1");
-      }).catch(() => { });
-    } catch { }
-  }, [user, posts.length]);
+      const list = await api.getPosts(!!user);
+      setPosts(list || []);
+    } catch (err) {
+      console.warn("Failed to fetch posts:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   const visiblePosts = useMemo(() => {
     return posts.filter((p) => (filter === "published" ? p.published : true));
@@ -105,28 +49,28 @@ export default function Blog() {
 
   async function handleSave() {
     if (!title.trim() || !content.trim()) return;
-    const col = collection(db, "posts");
-    if (editingId) {
-      const ref = doc(db, "posts", editingId);
-      await updateDoc(ref, {
-        title,
-        content,
-        updatedAt: serverTimestamp(),
-        published: publish,
-      });
-      setEditingId(null);
-    } else {
-      await addDoc(col, {
-        title,
-        content,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        published: publish,
-      });
+    try {
+      if (editingId) {
+        await api.updatePost(editingId, {
+          title,
+          content,
+          published: publish,
+        });
+        setEditingId(null);
+      } else {
+        await api.createPost({
+          title,
+          content,
+          published: publish,
+        });
+      }
+      setTitle("");
+      setContent("");
+      setPublish(true);
+      await fetchPosts();
+    } catch (err) {
+      alert("Error saving post: " + err.message);
     }
-    setTitle("");
-    setContent("");
-    setPublish(true);
   }
 
   function handleEdit(post) {
@@ -138,13 +82,22 @@ export default function Blog() {
   }
 
   async function handleDelete(id) {
-    const ref = doc(db, "posts", id);
-    await deleteDoc(ref);
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    try {
+      await api.deletePost(id);
+      await fetchPosts();
+    } catch (err) {
+      alert("Error deleting post: " + err.message);
+    }
   }
 
   async function togglePublish(id, current) {
-    const ref = doc(db, "posts", id);
-    await updateDoc(ref, { published: !current, updatedAt: serverTimestamp() });
+    try {
+      await api.updatePost(id, { published: !current });
+      await fetchPosts();
+    } catch (err) {
+      alert("Error updating post status: " + err.message);
+    }
   }
 
   return (

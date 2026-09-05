@@ -1,27 +1,30 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { auth } from "../firebase/app";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import api from "../services/api";
 
-const AuthCtx = createContext({ user: null, loading: true, loginWithEmail: async () => {}, logout: async () => {} });
+const AuthCtx = createContext({ user: null, loading: true, loginWithEmail: async () => {}, logout: () => {} });
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+    async function checkSession() {
+      const verifiedUser = await api.verifyAuth();
+      setUser(verifiedUser);
       setLoading(false);
-    });
-    return () => unsub();
+    }
+    checkSession();
   }, []);
 
   async function loginWithEmail(email, password) {
-    await signInWithEmailAndPassword(auth, email, password);
+    const res = await api.login(email, password);
+    setUser(res.user);
+    return res;
   }
 
-  async function logout() {
-    await signOut(auth);
+  function logout() {
+    api.logout();
+    setUser(null);
   }
 
   const value = useMemo(() => ({ user, loading, loginWithEmail, logout }), [user, loading]);
@@ -31,3 +34,4 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthCtx);
 }
+

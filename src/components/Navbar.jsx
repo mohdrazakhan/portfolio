@@ -27,9 +27,9 @@ export default function Navbar() {
     <header className="sticky top-0 z-20 border-b bg-white/70 backdrop-blur-md border-zinc-200 dark:bg-zinc-900/60 dark:border-zinc-800">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <a href="#home" className="hover:text-indigo-600 font-semibold text-lg md:text-xl text-zinc-900 dark:text-zinc-100">
+        <NavLink to="/" className="hover:text-indigo-600 font-semibold text-lg md:text-xl text-zinc-900 dark:text-zinc-100">
           Raza.me
-        </a>
+        </NavLink>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex gap-6 text-sm text-zinc-700 dark:text-zinc-300">

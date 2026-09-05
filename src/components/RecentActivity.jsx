@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { activities as seedActivities, activityTypeColors } from "../data/activities";
 import { ExternalLink } from "lucide-react";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { db } from "../firebase/app";
+import api from "../services/api";
 
 const container = {
   hidden: { opacity: 0 },
@@ -22,16 +22,19 @@ export default function RecentActivity({ title = "Recent Activity", limit = 6 })
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    // Sync with Firestore
-    const q = query(collection(db, "activities"), orderBy("date", "desc"));
-    const unsub = onSnapshot(q, (snap) => {
-      if (!snap.empty) {
-        setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      } else {
-        setItems([]);
+    async function loadActivities() {
+      try {
+        const list = await api.getActivities();
+        if (list && list.length > 0) {
+          setItems(list);
+        } else {
+          setItems(seedActivities);
+        }
+      } catch {
+        setItems(seedActivities);
       }
-    });
-    return () => unsub();
+    }
+    loadActivities();
   }, []);
 
   const handleScrollToProjects = (e) => {

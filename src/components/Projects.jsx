@@ -1,9 +1,10 @@
-// src/components/Projects.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { db } from "../firebase/app";
+import api from "../services/api";
 import { default as staticProjects } from "../data/projects";
+import ProjectCard3D from "./3d/ProjectCard3D";
+import IoTVisualizer3D from "./3d/IoTVisualizer3D";
+import { Sparkles } from "lucide-react";
 
 function Tag({ children }) {
   return (
@@ -17,27 +18,27 @@ export default function Projects() {
   const [open, setOpen] = useState(null);
   const navigate = useNavigate();
 
-  // Load projects from Firestore
+  // Load projects from REST API
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    // Sync with Firestore
-    // Sync with Firestore, ordered by 'order' ascending
-    const q = query(collection(db, "projects"), orderBy("order", "asc"));
-    const unsub = onSnapshot(q, (snap) => {
-      if (!snap.empty) {
-        setProjects(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      } else {
-        // Fallback to static if DB is empty to avoid blank section on fresh seed
+    async function loadProjects() {
+      try {
+        const list = await api.getProjects();
+        if (list && list.length > 0) {
+          setProjects(list);
+        } else {
+          setProjects(staticProjects);
+        }
+      } catch {
         setProjects(staticProjects);
       }
-    });
-    return () => unsub();
+    }
+    loadProjects();
   }, []);
 
   const handleProjectClick = (project) => {
     // Navigate to detail page for main projects
-    // Note: The ID in the database matches the ID in data/projects.js
     if (project.id === "optirider") {
       navigate("/projects/optirider");
     } else if (project.id === "fuel-fatality") {
@@ -53,75 +54,36 @@ export default function Projects() {
   };
 
   return (
-    <section id="projects" className="py-20 md:py-28 bg-transparent relative z-10">
-      <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl md:text-4xl font-bold text-zinc-100 mb-6">
-          Projects
-        </h2>
-        <p className="text-zinc-400 mb-8 max-w-2xl">
-          A few things I've built recently — click any card to view more details.
-        </p>
+    <div className="w-full">
+      <section id="projects" className="py-20 md:py-28 bg-transparent relative z-10">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
+          <div className="mb-10 md:mb-12 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Interactive 3D Portfolio</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-100 tracking-tight">
+              Featured Projects & Inventions
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 mt-3 max-w-2xl text-base sm:text-lg">
+              Hardware-backed IoT prototypes, cross-platform mobile apps, and scalable web solutions. Hover to explore 3D depth.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((p) => (
-            <article
-              key={p.id}
-              className="group bg-zinc-900/40 rounded-2xl p-5 hover:shadow-xl transition cursor-pointer"
-              onClick={() => handleProjectClick(p)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && handleProjectClick(p)}
-            >
-              <div className="h-40 w-full rounded-md overflow-hidden bg-zinc-800/30 mb-4">
-                {p.image ? (
-                  <img
-                    src={p.image}
-                    alt={p.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-zinc-500">
-                    No image
-                  </div>
-                )}
-              </div>
-
-              <h3 className="text-xl font-semibold text-zinc-100 mb-2">{p.title}</h3>
-              <p className="text-zinc-400 text-sm mb-3">{p.short}</p>
-
-              <div className="mt-2 flex items-center justify-between">
-                <div className="flex items-center">
-                  {p.tags.slice(0, 3).map((t) => (
-                    <Tag key={t}>{t}</Tag>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <a
-                    href={p.demo}
-                    className="text-xs px-3 py-1 border border-zinc-700 rounded-md text-zinc-200 hover:bg-zinc-800"
-                    onClick={(e) => e.stopPropagation()}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Live
-                  </a>
-                  <a
-                    href={p.repo}
-                    className="text-xs px-3 py-1 border border-zinc-700 rounded-md text-zinc-200 hover:bg-zinc-800"
-                    onClick={(e) => e.stopPropagation()}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Code
-                  </a>
-                </div>
-              </div>
-            </article>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {projects.map((p) => (
+              <ProjectCard3D
+                key={p.id}
+                project={p}
+                onClick={handleProjectClick}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Hardware & IoT Telemetry Laboratory Simulator */}
+      <IoTVisualizer3D />
 
       {/* Modal */}
       {open && (
@@ -161,6 +123,6 @@ export default function Projects() {
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }

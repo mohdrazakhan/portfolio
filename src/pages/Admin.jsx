@@ -6,14 +6,7 @@ import {
   Upload, Image as ImageIcon, Link as LinkIcon, Users, Tag, ExternalLink, Github, Calendar,
   Code, Sparkles, Loader
 } from "lucide-react";
-import projects from "../data/projects";
-import { activities } from "../data/activities";
-import {
-  collection, addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, orderBy, doc, serverTimestamp, setDoc
-} from "firebase/firestore";
-import { db, storage } from "../firebase/app";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import api from "../services/api";
 import projectsData from "../data/projects";
 import { activities as activitiesData } from "../data/activities";
 
@@ -133,66 +126,60 @@ function ProjectsManager() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
-  useEffect(() => {
-    // Sort by 'order' ascending so 1 comes first
-    const q = query(collection(db, "projects"), orderBy("order", "asc"));
-    const unsub = onSnapshot(q, (snap) => {
-      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      setItems(list);
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const data = await api.getProjects();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching projects:", err);
+    } finally {
       setLoading(false);
-    });
-    return () => unsub();
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
   }, []);
 
   async function handleSave(data) {
     try {
       if (editing) {
-        await updateDoc(doc(db, "projects", editing.id), {
-          ...data,
-          updatedAt: serverTimestamp()
-        });
+        await api.updateProject(editing.id, data);
       } else {
-        await addDoc(collection(db, "projects"), {
-          ...data,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
+        await api.createProject(data);
       }
       setShowModal(false);
       setEditing(null);
+      await fetchProjects();
     } catch (err) {
       console.error("Error saving project:", err);
-      alert("Failed to save project");
+      alert("Failed to save project: " + err.message);
     }
   }
 
   async function handleDelete(id) {
     if (confirm("Delete this project?")) {
       try {
-        await deleteDoc(doc(db, "projects", id));
+        await api.deleteProject(id);
+        await fetchProjects();
       } catch (err) {
         console.error("Error deleting project:", err);
-        alert("Failed to delete project");
+        alert("Failed to delete project: " + err.message);
       }
     }
   }
 
   // One-time seed helper (hidden generally, but useful if empty)
   async function handleSeed() {
-    if (!confirm("Import static projects to database? This will overwrite existing projects.")) return;
+    if (!confirm("Import static projects to database?")) return;
 
     try {
-      await Promise.all(projectsData.map(async (p, index) => {
-        const { id, ...rest } = p;
-        await setDoc(doc(db, "projects", id), {
-          ...rest,
-          // Assign order based on array position (1-based)
-          order: index + 1,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-      }));
-      alert("Projects imported successfully with default order!");
+      for (const p of projectsData) {
+        await api.createProject(p);
+      }
+      alert("Projects imported successfully!");
+      await fetchProjects();
     } catch (err) {
       console.error("Import failed:", err);
       alert("Failed to import projects.");
@@ -444,20 +431,9 @@ function ProjectModal({ initial, onSave, onClose }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState(initial?.image || "");
 
-  // Debug: Check if storage is available
-  useEffect(() => {
-    console.log("Storage object:", storage);
-    console.log("Storage bucket:", storage?.app?.options?.storageBucket);
-  }, []);
-
-  async function handleImageUpload(e) {
+  function handleImageUpload(e) {
     const file = e.target.files?.[0];
-    if (!file) {
-      console.log("No file selected");
-      return;
-    }
-
-    console.log("File selected:", file.name, file.type, file.size);
+    if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
@@ -473,62 +449,24 @@ function ProjectModal({ initial, onSave, onClose }) {
 
     try {
       setUploading(true);
-      setUploadProgress(0);
-      console.log("Starting upload...");
-
-      const timestamp = Date.now();
-      const fileName = `projects/${timestamp}_${file.name}`;
-      console.log("Storage path:", fileName);
-
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload progress:", Math.round(progress) + "%");
-          setUploadProgress(Math.round(progress));
-        },
-        (error) => {
-          console.error("Upload error:", error);
-          console.error("Error code:", error.code);
-          console.error("Error message:", error.message);
-
-          let errorMessage = "Failed to upload image. ";
-          if (error.code === "storage/unauthorized") {
-            errorMessage += "Please check Firebase Storage rules.";
-          } else if (error.code === "storage/canceled") {
-            errorMessage += "Upload was canceled.";
-          } else {
-            errorMessage += error.message;
-          }
-
-          alert(errorMessage);
-          setUploading(false);
-          setUploadProgress(0);
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            console.log("Upload complete! URL:", downloadURL);
-            setForm({ ...form, image: downloadURL });
-            setImagePreview(downloadURL);
-            setUploading(false);
-            setUploadProgress(0);
-          } catch (error) {
-            console.error("Error getting download URL:", error);
-            alert("Upload succeeded but failed to get download URL");
-            setUploading(false);
-            setUploadProgress(0);
-          }
-        }
-      );
+      setUploadProgress(50);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        setForm((prev) => ({ ...prev, image: dataUrl }));
+        setImagePreview(dataUrl);
+        setUploadProgress(100);
+        setUploading(false);
+      };
+      reader.onerror = () => {
+        alert("Failed to read image file");
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
-      console.error("Upload initialization error:", error);
-      alert("Failed to initialize upload: " + error.message);
+      console.error("Upload error:", error);
+      alert("Failed to process image");
       setUploading(false);
-      setUploadProgress(0);
     }
   }
 
@@ -877,41 +815,57 @@ function ActivitiesManager() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
+  const fetchActivities = async () => {
+    try {
+      const data = await api.getActivities();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching activities:", err);
+    }
+  };
+
   useEffect(() => {
-    const q = query(collection(db, "activities"), orderBy("date", "desc"));
-    const unsub = onSnapshot(q, (snap) => {
-      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      setItems(list);
-    });
-    return () => unsub();
+    fetchActivities();
   }, []);
 
   async function handleSave(data) {
     try {
       if (editing) {
-        await updateDoc(doc(db, "activities", editing.id), { ...data });
+        await api.updateActivity(editing.id, data);
       } else {
-        await addDoc(collection(db, "activities"), { ...data });
+        await api.createActivity(data);
       }
       setShowModal(false);
       setEditing(null);
+      await fetchActivities();
     } catch (err) {
       console.error(err);
-      alert("Failed to save activity");
+      alert("Failed to save activity: " + err.message);
     }
   }
 
   async function handleDelete(id) {
     if (confirm("Delete this activity?")) {
-      await deleteDoc(doc(db, "activities", id));
+      try {
+        await api.deleteActivity(id);
+        await fetchActivities();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete activity: " + err.message);
+      }
     }
   }
 
   async function handleSeed() {
     if (!confirm("Import default activities?")) return;
-    for (const a of activitiesData) {
-      const { id, ...rest } = a;
-      await addDoc(collection(db, "activities"), rest);
+    try {
+      for (const a of activitiesData) {
+        await api.createActivity(a);
+      }
+      await fetchActivities();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to seed activities: " + err.message);
     }
   }
 

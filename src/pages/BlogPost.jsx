@@ -3,8 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, Calendar, Share2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { db } from "../firebase/app";
-import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import api from "../services/api";
 
 function toDate(v) {
   if (!v) return null;
@@ -27,15 +26,17 @@ export default function BlogPost() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const col = collection(db, "posts");
-    const base = [orderBy("updatedAt", "desc")];
-    const q = user ? query(col, ...base) : query(col, where("published", "==", true), ...base);
-    const unsub = onSnapshot(q, (snap) => {
-      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setPosts(list);
-      setLoading(false);
-    }, () => setLoading(false));
-    return () => unsub();
+    async function loadPostData() {
+      try {
+        const list = await api.getPosts(!!user);
+        setPosts(list || []);
+      } catch (err) {
+        console.warn("Failed to load blog posts:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPostData();
   }, [user]);
 
   const index = useMemo(() => posts.findIndex((p) => p.id === id || p.slug === id), [posts, id]);
